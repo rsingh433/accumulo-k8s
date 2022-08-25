@@ -109,24 +109,24 @@ kind load docker-image accumulo-s3-fs:2.1.0
   3. Create the Accumulo secrets object: `kubectl apply -f accumulo-secrets.yaml`
   4. Create the Accumulo configuration objects: `kubectl apply -f accumulo-config.yaml`
   5. Initialize Accumulo: `kubectl apply -f accumulo-init.yaml`
-     - Check that the job succeeded successfully:
-       ```bash
-       kubectl logs -f $(kubectl get pod -n accumulo -l name=job -o jsonpath="{.items[0].metadata.name}") -n accumulo
-       ```
-     - Remove the job
-       ```bash
-       kubectl delete -f accumulo-init.yaml`
-       ```
+     1. Check that the job succeeded successfully:
+        ```bash
+        kubectl logs -f $(kubectl get pod -n accumulo -l name=job -o jsonpath="{.items[0].metadata.name}") -n accumulo
+        ```
+     2. Remove the job
+        ```bash
+        kubectl delete -f accumulo-init.yaml`
+        ```
   6. Deploy the Accumulo server processes:
-    ```
-    kubectl apply -f accumulo-manager.yaml 
-    kubectl apply -f accumulo-gc.yaml 
-    kubectl apply -f accumulo-tserver.yaml 
-    kubectl apply -f accumulo-monitor.yaml
-    ```
+     ```
+     kubectl apply -f accumulo-manager.yaml 
+     kubectl apply -f accumulo-gc.yaml 
+     kubectl apply -f accumulo-tserver.yaml 
+     kubectl apply -f accumulo-monitor.yaml
+     ```
   7. Optionally, deploy the optional Accumulo server processes:
-    ```
-    kubectl apply -f accumulo-coordinator.yaml
-    kubectl apply -f accumulo-compactor.yaml
-    kubectl apply -f accumulo-sserver.yaml
-    ```
+     ```
+     kubectl apply -f accumulo-coordinator.yaml
+     kubectl apply -f accumulo-compactor.yaml
+     kubectl apply -f accumulo-sserver.yaml
+     ```
