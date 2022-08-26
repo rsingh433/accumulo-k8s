@@ -48,7 +48,7 @@ kubectl logs -f $(kubectl get pod -n zookeeper -l app.kubernetes.io/name=zookeep
 The instructions for installing MinIO are [here](https://docs.min.io/minio/baremetal/quickstart/k8s.html). I did the following on my machine:
 
 ```bash
-mkdir /export
+sudo mkdir /export
 sudo sudo chown "`id -un`.`id -gn`" /export
 curl https://raw.githubusercontent.com/minio/docs/master/source/extra/examples/minio-dev.yaml -O
 modified minio-dev.yaml:
@@ -66,10 +66,10 @@ You need to configure MinIO using the web console. Do the following:
   2. Log into console at `http://localhost:9090` using the username `minioadmin` and password `minioadmin`
   3. Create a user in the web console
      1. On the left menu go to Identity -> Users, then click the `Create User` button on the right
-     2. Select a username, password, and set the policy to `readwrite` 
+     2. Use the username `accumulo` and the password `changeme`, and set the policy to `readwrite`, then click Save
   4. Create a bucket
      1. On the left menu go to Buckets, then click the `Create Bucket` button on the right
-     2. Select a name, then click `Create Bucket`  
+     2. Use the name `accumulo`, then click `Create Bucket`  
 
 ## Installing Accumulo
 
@@ -104,29 +104,62 @@ kind load docker-image accumulo-s3-fs:2.1.0
 
 ### Create the Accumulo Deployment
 
-  1. Modify the `accumulo-config.yaml` file accordingly:
-  2. Create the kubernetes accumulo namespace: `kubectl apply -f accumulo-ns.yaml`
-  3. Create the Accumulo secrets object: `kubectl apply -f accumulo-secrets.yaml`
-  4. Create the Accumulo configuration objects: `kubectl apply -f accumulo-config.yaml`
-  5. Initialize Accumulo: `kubectl apply -f accumulo-init.yaml`
+  1. Create the kubernetes accumulo namespace: `kubectl apply -f accumulo-ns.yaml`
+  2. Create the Accumulo secrets object: `kubectl apply -f accumulo-secrets.yaml`
+  3. Create the Accumulo configuration objects: `kubectl apply -f accumulo-config.yaml`
+  4. Initialize Accumulo: `kubectl apply -f accumulo-init.yaml`
      1. Check that the job succeeded successfully:
         ```bash
-        kubectl logs -f $(kubectl get pod -n accumulo -l name=job -o jsonpath="{.items[0].metadata.name}") -n accumulo
+        kubectl logs -f $(kubectl get pod -n accumulo -l job-name=job -o jsonpath="{.items[0].metadata.name}") -n accumulo
         ```
      2. Remove the job
         ```bash
-        kubectl delete -f accumulo-init.yaml`
+        kubectl delete -f accumulo-init.yaml
         ```
-  6. Deploy the Accumulo server processes:
+  5. Deploy the Accumulo server processes:
      ```
      kubectl apply -f accumulo-manager.yaml 
      kubectl apply -f accumulo-gc.yaml 
      kubectl apply -f accumulo-tserver.yaml 
      kubectl apply -f accumulo-monitor.yaml
      ```
-  7. Optionally, deploy the optional Accumulo server processes:
+  6. Optionally, deploy the optional Accumulo server processes:
      ```
      kubectl apply -f accumulo-coordinator.yaml
      kubectl apply -f accumulo-compactor.yaml
      kubectl apply -f accumulo-sserver.yaml
      ```
+---
+**_NOTE:_**
+
+If you want to view the Accumulo Monitor:
+```bash
+kubectl port-forward deployment/accumulo-monitor -n accumulo 9995:9995 &
+```
+
+and point your browser at `localhost:9995`
+
+---
+
+
+# TearDown Everything
+
+```
+kubectl delete -f accumulo-coordinator.yaml
+kubectl delete -f accumulo-compactor.yaml
+kubectl delete -f accumulo-sserver.yaml
+kubectl delete -f accumulo-manager.yaml
+kubectl delete -f accumulo-gc.yaml
+kubectl delete -f accumulo-tserver.yaml
+kubectl delete -f accumulo-monitor.yaml
+kubectl delete -f accumulo-config.yaml
+kubectl delete -f accumulo-secrets.yaml
+kubectl delete -f accumulo-ns.yaml
+kubectl delete -f minio-svc.yaml
+kubectl delete -f minio-dev.yaml
+helm uninstall --namespace zookeeper bitnami-zookeeper
+kubectl delete namespace zookeeper
+kind delete cluster
+sudo rmdir /export
+```
+
