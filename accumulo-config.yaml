@@ -22,7 +22,6 @@ data:
     instance.secret=s3test
     instance.zookeeper.host=bitnami-zookeeper.zookeeper.svc.cluster.local:2181
     manager.wal.closer.implementation=org.apache.accumulo.server.manager.recovery.NoOpLogCloser
-    monitor.bind.all.interfaces=true
     table.durability=sync
     tserver.memory.maps.native.enabled=false
     tserver.walog.max.size=512M
