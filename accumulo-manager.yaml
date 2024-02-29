@@ -20,7 +20,7 @@ spec:
         image: accumulo-s3-fs:2.1.0
         imagePullPolicy: Never
         command: ["/bin/bash", "-c"]
-        args: ["accumulo manager -a $(hostname -i)" ]
+        args: ["accumulo manager -o general.process.bind.addr=$(hostname -i)" ]
         ports:
         - containerPort: 9999
         resources:

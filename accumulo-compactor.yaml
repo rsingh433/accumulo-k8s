@@ -20,7 +20,7 @@ spec:
         image: accumulo-s3-fs:2.1.0
         imagePullPolicy: Never
         command: ["/bin/bash", "-c"]
-        args: ["accumulo compactor -q DCQ1 -a $(hostname -i)" ]
+        args: ["accumulo compactor -o compactor.queue=DCQ1 -o general.process.bind.addr=$(hostname -i)" ]
         ports:
         - containerPort: 9133
         resources:
